@@ -1,144 +1,151 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const KasirPesantrenApp());
+  runApp(const SistemPesantrenApp());
 }
 
-class KasirPesantrenApp extends StatelessWidget {
-  const KasirPesantrenApp({super.key});
+class SistemPesantrenApp extends StatelessWidget {
+  const SistemPesantrenApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Kasir Pesantren',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const PesantrenHomePage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class PesantrenHomePage extends StatelessWidget {
+  const PesantrenHomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 2, // Dua Tab: Santri dan Pengurus
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.green[800],
+          foregroundColor: Colors.white,
+          title: const Text("Manajemen Pesantren"),
+          bottom: const TabBar(
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            tabs: [
+              Tab(icon: Icon(Icons.group), text: "Data Santri"),
+              Tab(
+                icon: Icon(Icons.admin_panel_settings),
+                text: "Data Pengurus",
+              ),
+            ],
+          ),
+        ),
+        body: const TabBarView(
+          children: [
+            HalamanData(tipe: "Santri"),
+            HalamanData(tipe: "Pengurus"),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-class _HomePageState extends State<HomePage> {
-  // Blueprint Logika: Variabel untuk menyimpan total belanja
-  int totalBelanja = 0;
+class HalamanData extends StatefulWidget {
+  final String tipe;
+  const HalamanData({super.key, required this.tipe});
 
-  void tambahKeKeranjang(int harga) {
-    setState(() {
-      totalBelanja += harga;
-    });
+  @override
+  State<HalamanData> createState() => _HalamanDataState();
+}
+
+class _HalamanDataState extends State<HalamanData> {
+  // Data Awal
+  final List<Map<String, String>> listData = [];
+
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController detailController = TextEditingController();
+
+  void tambahData() {
+    if (nameController.text.isNotEmpty && detailController.text.isNotEmpty) {
+      setState(() {
+        listData.add({
+          "nama": nameController.text,
+          "detail": detailController.text,
+        });
+      });
+      nameController.clear();
+      detailController.clear();
+      Navigator.pop(context);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Kasir Pesantren - UAS Irfan"),
-        backgroundColor: Colors.green[700],
-        foregroundColor: Colors.white,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                const Text(
-                  "Daftar Belanja Santri",
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const Divider(),
-                _itemProduk("Kitab Kuning", 50000),
-                _itemProduk("Sarung Wadimor", 65000),
-                _itemProduk("Peci Hitam", 25000),
-                _itemProduk("Sajadah", 45000),
-              ],
-            ),
-          ),
-          // Blueprint UI: Menampilkan Total di bagian bawah
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(color: Colors.grey.shade300, blurRadius: 10),
-              ],
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      "Total Bayar:",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+      body: listData.isEmpty
+          ? Center(child: Text("Belum ada data ${widget.tipe}"))
+          : ListView.builder(
+              padding: const EdgeInsets.all(10),
+              itemCount: listData.length,
+              itemBuilder: (context, index) {
+                return Card(
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: widget.tipe == "Santri"
+                          ? Colors.green
+                          : Colors.blue,
+                      child: const Icon(Icons.person, color: Colors.white),
                     ),
-                    Text(
-                      "Rp $totalBelanja",
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green[800],
-                      ),
+                    title: Text(listData[index]['nama']!),
+                    subtitle: Text(
+                      widget.tipe == "Santri"
+                          ? "Kamar: ${listData[index]['detail']}"
+                          : "Jabatan: ${listData[index]['detail']}",
                     ),
-                  ],
-                ),
-                const SizedBox(height: 15),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text("Konfirmasi Bayar"),
-                          content: Text(
-                            "Total yang harus dibayar: Rp $totalBelanja",
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text("OK"),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[700],
-                      foregroundColor: Colors.white,
-                    ),
-                    child: const Text("Proses Pembayaran"),
                   ),
-                ),
-              ],
+                );
+              },
             ),
-          ),
-        ],
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddDialog(),
+        child: const Icon(Icons.add),
       ),
     );
   }
 
-  Widget _itemProduk(String nama, int harga) {
-    return ListTile(
-      leading: const Icon(Icons.shopping_cart_checkout, color: Colors.green),
-      title: Text(nama),
-      subtitle: Text("Rp $harga"),
-      trailing: IconButton(
-        icon: const Icon(Icons.add_circle, color: Colors.green),
-        onPressed: () => tambahKeKeranjang(harga),
+  void _showAddDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Tambah ${widget.tipe}"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameController,
+              decoration: const InputDecoration(labelText: "Nama Lengkap"),
+            ),
+            TextField(
+              controller: detailController,
+              decoration: InputDecoration(
+                labelText: widget.tipe == "Santri" ? "Nama Kamar" : "Jabatan",
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          ElevatedButton(onPressed: tambahData, child: const Text("Simpan")),
+        ],
       ),
     );
   }
