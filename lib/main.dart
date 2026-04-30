@@ -30,7 +30,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kasir Pesantren - UAS Irfan"),
+        title: const Text("Kasir Pesantren - PP Nurul_Falah"),
         backgroundColor: Colors.green[700],
         foregroundColor: Colors.white,
       ),
