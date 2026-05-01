@@ -26,7 +26,7 @@ class PesantrenHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // Dua Tab: Santri dan Pengurus
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.green[800],
@@ -64,12 +64,14 @@ class HalamanData extends StatefulWidget {
   State<HalamanData> createState() => _HalamanDataState();
 }
 
-class _HalamanDataState extends State<HalamanData> {
-  // Data Awal
+class _HalamanDataState extends State<HalamanData>
+    with AutomaticKeepAliveClientMixin {
   final List<Map<String, String>> listData = [];
-
   final TextEditingController nameController = TextEditingController();
   final TextEditingController detailController = TextEditingController();
+
+  @override
+  bool get wantKeepAlive => true;
 
   void tambahData() {
     if (nameController.text.isNotEmpty && detailController.text.isNotEmpty) {
@@ -87,6 +89,7 @@ class _HalamanDataState extends State<HalamanData> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Scaffold(
       body: listData.isEmpty
           ? Center(child: Text("Belum ada data ${widget.tipe}"))
