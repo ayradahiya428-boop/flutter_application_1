@@ -1,78 +1,81 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 
 void main() {
-  runApp(const SistemPesantrenApp());
+  runApp(const MyApp());
 }
 
-class SistemPesantrenApp extends StatelessWidget {
-  const SistemPesantrenApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'Sistem Pesantren Nurul Falah',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        primarySwatch: Colors.green,
         useMaterial3: true,
+        fontFamily: 'sans-serif',
       ),
-      home: const PesantrenHomePage(),
+      home: const SplashScreen(),
     );
   }
 }
 
-class PesantrenHomePage extends StatelessWidget {
-  const PesantrenHomePage({super.key});
+// --- 1. SPLASH SCREEN (Tampilan Lebih Elegan) ---
+class SplashScreen extends StatefulWidget {
+  const SplashScreen({super.key});
+
+  @override
+  State<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends State<SplashScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Timer(const Duration(seconds: 3), () {
+      if (mounted) {
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const MainNavigation()));
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.green[800],
-          foregroundColor: Colors.white,
-          toolbarHeight: 120, // Menambah tinggi agar muat logo & teks besar
-          centerTitle: true, // Membuat judul ke tengah
-          title: Column(
-            children: [
-              // MENAMBAHKAN LOGO DARI URL
-              Image.network(
-                'https://penerimaan.nurulfalahpusat.com/assets/img/logo.png', // URL Logo Nurul Falah
-                height: 60,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.school, size: 50),
-              ),
-              const SizedBox(height: 8),
-              // MEMPERBESAR NAMA SISTEM
-              const Text(
-                "NURUL FALAH PUSAT",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ],
-          ),
-          bottom: const TabBar(
-            labelColor: Colors.white,
-            unselectedLabelColor: Colors.white70,
-            indicatorColor: Colors.white,
-            isScrollable: true,
-            tabs: [
-              Tab(icon: Icon(Icons.group), text: "Santri"),
-              Tab(icon: Icon(Icons.admin_panel_settings), text: "Pengurus"),
-              Tab(icon: Icon(Icons.inventory), text: "Inventaris"),
-              Tab(icon: Icon(Icons.person_pin), text: "Profil"),
-            ],
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.green, Colors.teal],
           ),
         ),
-        body: const TabBarView(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            HalamanData(tipe: "Santri"),
-            HalamanData(tipe: "Pengurus"),
-            HalamanData(tipe: "Inventaris"),
-            HalamanProfil(),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: const BoxDecoration(
+                  color: Colors.white, shape: BoxShape.circle),
+              child: const Icon(Icons.account_balance,
+                  size: 80, color: Colors.green),
+            ),
+            const SizedBox(height: 25),
+            const Text("NURUL FALAH",
+                style: TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 2)),
+            const Text("Sistem Informasi Terpadu",
+                style: TextStyle(color: Colors.white70, fontSize: 16)),
+            const SizedBox(height: 50),
+            const CircularProgressIndicator(color: Colors.white),
           ],
         ),
       ),
@@ -80,152 +83,264 @@ class PesantrenHomePage extends StatelessWidget {
   }
 }
 
-// Halaman Profil Irfan Mansyur
-class HalamanProfil extends StatelessWidget {
-  const HalamanProfil({super.key});
+// --- 2. NAVIGASI UTAMA ---
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int _selectedIndex = 0;
+  final List<Widget> _pages = [
+    const HomePage(),
+    const AkademikPage(),
+    const KeuanganPage(),
+    const ProfilPage()
+  ];
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
+    return Scaffold(
+      body: SafeArea(child: _pages[_selectedIndex]), // Aman untuk iPhone Notch
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: (index) => setState(() => _selectedIndex = index),
+          selectedItemColor: Colors.green[700],
+          unselectedItemColor: Colors.grey,
+          showUnselectedLabels: true,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+                icon: Icon(Icons.home_filled), label: 'Beranda'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.school_rounded), label: 'Akademik'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.account_balance_wallet_rounded),
+                label: 'Keuangan'),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person_rounded), label: 'Profil'),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// --- 3. BERANDA (Grid Dashboard) ---
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Container(
+            padding: const EdgeInsets.all(25),
+            decoration: const BoxDecoration(
+              color: Colors.green,
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Assalamu'alaikum,",
+                            style: TextStyle(color: Colors.white70)),
+                        Text("Admin Irfan",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Colors.white,
+                        child: Icon(Icons.person, color: Colors.green)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverPadding(
+          padding: const EdgeInsets.all(20),
+          sliver: SliverGrid.count(
+            crossAxisCount: 2,
+            mainAxisSpacing: 15,
+            crossAxisSpacing: 15,
+            children: [
+              _buildMenuCard(Icons.people, "Santri", "120 Orang"),
+              _buildMenuCard(Icons.menu_book, "Kurikulum", "KMI/Modern"),
+              _buildMenuCard(Icons.campaign, "Pengumuman", "3 Baru"),
+              _buildMenuCard(Icons.event_available, "Kehadiran", "98%"),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _buildMenuCard(IconData icon, String title, String info) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 40, color: Colors.green),
+          const SizedBox(height: 10),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(info, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        ],
+      ),
+    );
+  }
+}
+
+// --- 4. AKADEMIK ---
+class AkademikPage extends StatelessWidget {
+  const AkademikPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Akademik"), centerTitle: true),
+      body: ListView(
+        padding: const EdgeInsets.all(15),
+        children: [
+          _buildActionCard(
+              context,
+              "Input Data Santri",
+              "Kelola biodata santri baru",
+              Icons.person_add_alt_1,
+              const FormSantriPage()),
+          _buildActionCard(context, "Jadwal", "Agenda belajar mengajar",
+              Icons.calendar_today, null),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionCard(BuildContext context, String title, String desc,
+      IconData icon, Widget? page) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 15),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(15),
+        leading: CircleAvatar(
+            backgroundColor: Colors.green[50],
+            child: Icon(icon, color: Colors.green)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(desc),
+        onTap: () {
+          if (page != null)
+            Navigator.push(context, MaterialPageRoute(builder: (_) => page));
+        },
+      ),
+    );
+  }
+}
+
+// --- 5. FORM INPUT (Desain Form Modern) ---
+class FormSantriPage extends StatefulWidget {
+  const FormSantriPage({super.key});
+  @override
+  State<FormSantriPage> createState() => _FormSantriPageState();
+}
+
+class _FormSantriPageState extends State<FormSantriPage> {
+  final _name = TextEditingController();
+  final _address = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text("Formulir Santri")),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            TextField(
+              controller: _name,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.person),
+                labelText: "Nama Lengkap",
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _address,
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.location_on),
+                labelText: "Alamat Asal",
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+              ),
+            ),
+            const SizedBox(height: 30),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 55),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+              ),
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text("Data ${_name.text} Berhasil Disimpan")));
+                Navigator.pop(context);
+              },
+              child: const Text("SIMPAN PERUBAHAN",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Placeholder Pages
+class KeuanganPage extends StatelessWidget {
+  const KeuanganPage({super.key});
+  @override
+  Widget build(BuildContext context) =>
+      const Center(child: Text("Halaman Keuangan"));
+}
+
+class ProfilPage extends StatelessWidget {
+  const ProfilPage({super.key});
+  @override
+  Widget build(BuildContext context) => Center(
+          child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const CircleAvatar(
-            radius: 50,
-            backgroundColor: Colors.green,
-            child: Icon(Icons.person, size: 50, color: Colors.white),
-          ),
-          const SizedBox(height: 20),
-          const Card(
-            child: ListTile(
-              title: Text("Nama Pengembang"),
-              subtitle: Text("Irfan Mansyur"),
-            ),
-          ),
-          const Card(
-            child: ListTile(title: Text("NPM"), subtitle: Text("20241220123")),
-          ),
-          const Card(
-            child: ListTile(
-              title: Text("Program Studi"),
-              subtitle: Text("Teknik Informatika"),
-            ),
-          ),
+              radius: 50,
+              backgroundColor: Colors.green,
+              child: Icon(Icons.person, size: 50, color: Colors.white)),
+          const SizedBox(height: 10),
+          const Text("Irfan Mansyur",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text("Informatika - Univ. Islam Madura"),
         ],
-      ),
-    );
-  }
-}
-
-class HalamanData extends StatefulWidget {
-  final String tipe;
-  const HalamanData({super.key, required this.tipe});
-
-  @override
-  State<HalamanData> createState() => _HalamanDataState();
-}
-
-class _HalamanDataState extends State<HalamanData>
-    with AutomaticKeepAliveClientMixin {
-  final List<Map<String, String>> listData = [];
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController detailController = TextEditingController();
-
-  @override
-  bool get wantKeepAlive => true;
-
-  void tambahData() {
-    if (nameController.text.isNotEmpty && detailController.text.isNotEmpty) {
-      setState(() {
-        listData.add({
-          "nama": nameController.text,
-          "detail": detailController.text,
-        });
-      });
-      nameController.clear();
-      detailController.clear();
-      Navigator.pop(context);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-
-    String labelDetail = widget.tipe == "Santri"
-        ? "Kamar"
-        : (widget.tipe == "Pengurus" ? "Jabatan" : "Jumlah/Kondisi");
-    IconData iconUtama = widget.tipe == "Santri"
-        ? Icons.person
-        : (widget.tipe == "Pengurus"
-              ? Icons.admin_panel_settings
-              : Icons.inventory_2);
-    Color warnaTema = widget.tipe == "Santri"
-        ? Colors.green
-        : (widget.tipe == "Pengurus" ? Colors.blue : Colors.orange);
-
-    return Scaffold(
-      body: listData.isEmpty
-          ? Center(child: Text("Belum ada data ${widget.tipe}"))
-          : ListView.builder(
-              padding: const EdgeInsets.all(10),
-              itemCount: listData.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: warnaTema,
-                      child: Icon(iconUtama, color: Colors.white),
-                    ),
-                    title: Text(
-                      listData[index]['nama']!,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Text(
-                      "$labelDetail: ${listData[index]['detail']}",
-                    ),
-                  ),
-                );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddDialog(labelDetail),
-        backgroundColor: Colors.green[800],
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-    );
-  }
-
-  void _showAddDialog(String labelDetail) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Tambah ${widget.tipe}"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: InputDecoration(
-                labelText: widget.tipe == "Inventaris"
-                    ? "Nama Barang"
-                    : "Nama Lengkap",
-              ),
-            ),
-            TextField(
-              controller: detailController,
-              decoration: InputDecoration(labelText: labelDetail),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Batal"),
-          ),
-          ElevatedButton(onPressed: tambahData, child: const Text("Simpan")),
-        ],
-      ),
-    );
-  }
+      ));
 }
