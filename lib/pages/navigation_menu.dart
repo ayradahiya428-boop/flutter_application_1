@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'akademik_page.dart';
 import 'keuangan_page.dart';
+import 'login_page.dart';
 
 class MainNavigation extends StatefulWidget {
   const MainNavigation({super.key});
@@ -48,20 +49,38 @@ class _MainNavigationState extends State<MainNavigation> {
 
 class ProfilPage extends StatelessWidget {
   const ProfilPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          CircleAvatar(
+        children: [
+          const CircleAvatar(
               radius: 50,
               backgroundColor: Colors.green,
               child: Icon(Icons.person, size: 50, color: Colors.white)),
-          SizedBox(height: 10),
-          Text("Irfan Mansyur",
+          const SizedBox(height: 10),
+          const Text("Irfan Mansyur",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-          Text("Informatika - Universitas Islam Madura"),
+          const Text("Informatika - Universitas Islam Madura"),
+          const SizedBox(height: 30), // Jarak sebelum tombol
+
+          // --- TARUH TOMBOL LOGOUT DI SINI ---
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red[50], // Warna background tombol
+              foregroundColor: Colors.red, // Warna teks & ikon
+            ),
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginPage()),
+              );
+            },
+            icon: const Icon(Icons.logout),
+            label: const Text("LOGOUT"),
+          ),
         ],
       ),
     );
